@@ -1,0 +1,169 @@
+import numpy as np
+import random
+import time
+import sys
+import math
+import os
+
+
+def countSetBits(num):
+    binary = bin(num)
+
+    setBits = [ones for ones in binary[2:] if ones == '1']
+
+    return(setBits)
+
+def dataset(i,y,Power,Numofagent):
+
+    if (i == 1): #Agent Based uniform
+        strx = bin(y)[2:]
+        length = len(strx)
+        Tempcoal = []
+        for x in range(0, length):
+            if (int(strx[x]) == 1):
+                Tempcoal.append(length - x)
+
+
+        sums = 0
+        for j in Tempcoal :
+            partial = np.random.uniform(0, 2 * Power.get(j))
+            sums = sums + partial
+
+        return sums
+
+
+
+
+    if(i==2):#Agent based normal
+        strx = bin(y)[2:]
+        length = len(strx)
+        Tempcoal = []
+        for x in range(0, length):
+            if (int(strx[x]) == 1):
+                Tempcoal.append(length - x)
+
+
+        sums = 0
+        for j in Tempcoal:
+            partial = np.random.normal(Power.get(j), 0.01)
+            sums = sums + partial
+
+        return sums
+
+
+
+    if (i == 3): # Beta distribution
+        return bin(y).count('1')* np.random.beta(.5, .5)
+
+    if (i == 4): #odified normal distribution
+        mu = 10 *  
+        sigma = 0.01
+        value = np.random.normal(mu, sigma)
+        randval = np.random.uniform(0, 50)
+
+        if randval <= 20:
+            value = value + randval
+
+        return value
+
+
+    if (i == 5):#Modified uniform distribution
+
+        value= np.random.uniform(0,10*bin(y).count('1'))
+        randval = np.random.uniform(0, 50)
+
+        if randval <= 20:
+            value = value + randval
+
+        return  value
+
+    if (i == 6):#Normal distribution
+        mu = 10 * bin(y).count('1')
+        sigma = 0.01
+        return np.random.normal(mu, sigma)
+
+    if (i == 7):  # SVA BETA Distribution
+        strx = bin(y)[2:]
+        length = len(strx)
+        Tempcoal = []
+        for x in range(0, length):
+            if (int(strx[x]) == 1):
+                Tempcoal.append(length - x)
+        x = len(Tempcoal)
+        inputx = x * np.random.beta(0.5, 0.5)
+
+        if (strx[len(strx) - 1] == str(1)):
+            inputx = 200 + inputx
+        return inputx
+
+    if (i == 8):  # Weibull Distribution
+        lengthofcoal = bin(y).count('1')
+        value = np.random.weibull(lengthofcoal * lengthofcoal)
+        return value
+
+    if (i == 9):  # Rayleigh distribution
+        lengthofcoal = bin(y).count('1')
+        mu = 10 * lengthofcoal
+        modevalue = np.sqrt(2 / np.pi) * mu
+        value = np.random.rayleigh(modevalue)
+        return value
+
+    if (i == 10):  # Weighted random with chisquare
+        lengthofcoal = bin(y).count('1')
+        value = random.randint(1, lengthofcoal)
+        inputx = lengthofcoal * np.random.chisquare(lengthofcoal)
+        totalvalue = value + inputx
+        return totalvalue
+
+    if (i == 11):  # F distribution
+        lengthofcoal = bin(y).count('1')
+
+        dfden = lengthofcoal + 1
+        dfnum = 1
+        value = np.random.f(dfnum, dfden)
+        return value
+    if (i == 12):  # Laplace or double exponential
+        lengthofcoal = bin(y).count('1')
+        value = np.random.laplace(10 * lengthofcoal, 0.1)
+        return value
+
+
+
+def main():
+
+    MainFolder=r"Path where we want to store the data sets"
+    for Datadistribution in range(1, 12):
+        for NumAgent in range(15, 28):
+            for NumInstances in range(1, 4):
+                    filepath = MainFolder+"/"+str(Datadistribution)+"/" + str(NumAgent) + "/" + str(NumInstances) + ".txt"
+                    directory = os.path.dirname(filepath)
+                    if not os.path.exists(directory):
+                        os.makedirs(directory)
+                    filename = str(NumInstances)
+                    file = open(filepath, "w")
+                    file.write(str(0))
+                    file.write("\n")
+                    totalcoal = 2 ** NumAgent
+                    y = 1
+
+                    Agents = list(range(1, NumAgent + 1))
+                    RealAgent = Agents[0:NumAgent]
+                    Power = {}
+                    for i in RealAgent:
+                        Power[i] = np.random.uniform(0, 10)
+
+
+
+                    while (y < totalcoal):
+
+
+                        sums = float("{0:.3f}".format(dataset(Datadistribution,y,Power,NumAgent)))
+                        file.write(str(sums))
+                        file.write("\n")
+                        y = y + 1
+                    file.close()
+
+
+
+if __name__ == "__main__":
+    main()
